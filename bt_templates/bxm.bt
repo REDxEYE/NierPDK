@@ -1,0 +1,47 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct{
+    string str;
+}String <read=Str(this.str)>;
+
+BigEndian();
+struct Header{
+    char magic[4]; Assert(magic=="XML");
+    uint32 flags;
+    uint16 node_count;  
+    uint16 data_count;
+    uint32 data_size;
+};
+
+
+Header header;
+
+FSeek(FileSize()-header.data_size);
+String strings[header.data_count]<optimize=false>;
+FSeek(16);
+
+struct NodeInfo{
+    uint16 child_count;
+    uint16 first_child_id;
+    uint16 attribute_count;
+    uint16 data_id;
+};
+NodeInfo nodes[header.node_count];
+
+struct DataOffsets{
+    uint16 name_offset;
+    uint16 value_offset;
+};
+
+DataOffsets offsets[header.data_count];

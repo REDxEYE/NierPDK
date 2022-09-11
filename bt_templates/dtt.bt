@@ -1,0 +1,54 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+typedef struct(int size){
+    char str[size];
+} String <read=this.str>;
+
+struct Header{
+    char magic[4];
+    int file_count,
+        file_table_offset,
+        extetion_table_offset,
+        name_table_offset,
+        size_table_offset,
+        hashmap_offset;
+};
+
+Header header;
+
+
+FSeek(header.file_table_offset);
+uint file_offsets[header.file_count];
+
+FSeek(header.size_table_offset);
+uint file_sizes[header.file_count];
+
+FSeek(header.extetion_table_offset);
+String ext(4)[header.file_count];
+
+FSeek(header.name_table_offset);
+int name_alignment<hidden=true>;
+String names(name_alignment)[header.file_count];
+
+struct HashInfo{
+FSeek(header.hashmap_offset);
+int prehash_shift,bucket_offset_offset,hashes_offset,file_indicies_offset;
+local uint bucket_offset_count = (hashes_offset-bucket_offset_offset)/4;
+FSeek(header.hashmap_offset+bucket_offset_offset);
+uint bucket_offsets[bucket_offset_count];
+FSeek(header.hashmap_offset+hashes_offset);
+uint file_hashes[header.file_count];
+FSeek(header.hashmap_offset+file_indicies_offset);
+uint16 file_indicies[header.file_count];
+} hash_info;
+

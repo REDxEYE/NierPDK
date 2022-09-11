@@ -1,0 +1,43 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct Header{
+    char magic[4]; Assert(magic=="WTB");
+    uint unk;
+    uint texture_count;
+    uint textures_offsets_offset;
+    uint textures_size_offset;
+    uint textures_unk1_offset;
+    uint textures_id_offset;
+    uint textures_unk2_offset;    
+
+};
+
+
+Header header;
+
+
+FSeek(header.textures_offsets_offset);
+uint32 offsets[header.texture_count];
+
+FSeek(header.textures_size_offset);
+uint32 sizes[header.texture_count];
+
+FSeek(header.textures_id_offset);
+uint32 ids[header.texture_count]<read=Str("%08X",this)>;
+
+FSeek(header.textures_unk1_offset);
+uint32 unk1[header.texture_count];
+
+FSeek(header.textures_unk2_offset);
+uint32 unk2[header.texture_count];

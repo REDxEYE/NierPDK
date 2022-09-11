@@ -1,0 +1,124 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+typedef struct {
+    float x,y,z;
+} Vec3 <read=Str("%.3f %.3f %.3f",this.x,this.y,this.z)>;
+
+struct Header{
+    char magic[4];
+    int version<format=hex>;
+    int unk_zero; Assert(unk_zero==0);
+    uint flags;
+    Vec3 bbox[2];
+    
+    uint bones_offset;
+    uint bones_count;
+    
+    uint bone_index_translate_offset;
+    uint bone_index_translate_count;
+
+    uint vertex_groups_offset;
+    uint vertex_groups_count;
+
+    uint meshes_offset;
+    uint meshes_count;
+
+    uint mesh_groups_info_header_offset;
+    uint mesh_groups_info_count;
+    
+    uint collision_tree_offset;
+    uint collision_tree_count;
+
+    uint bone_map_offset;
+    uint bone_map_count;
+
+    uint bone_sets_offset;
+    uint bone_sets_count;
+
+    uint materials_offset;
+    uint materials_count;
+
+    uint mesh_groups_offset;
+    uint mesh_groups_count;
+
+    uint mesh_materials_offset;
+    uint mesh_materials_count;
+
+    uint unk_world_data_offset;
+    uint unk_world_data_size;
+
+    uint unk8C;
+};
+
+struct Bone{
+    int16 id;
+    int16 parent_id;
+    
+    Vec3 pos;
+    Vec3 rot;
+    Vec3 scl;
+    
+    Vec3 wpos;
+    Vec3 wrot;
+    Vec3 wscl;
+
+    Vec3 wpos_tpose;
+};
+
+struct Material{
+    uint16 unk[4];
+    uint name_offset, effect_name_offset, technique_name_offset;
+    uint unk2;
+    uint texture_offset,texture_count;
+    uint parameter_groups_offset, parameter_groups_count;
+    uint variables_offset, variables_count;
+    local uint32 tmp = FTell();
+    FSeek(texture_offset);
+    struct{
+        uint offset,identificator;
+    }textures[texture_count];   
+
+    FSeek(tmp);
+
+};
+
+struct VertexHeader{
+    uint vertex_data_offset,vertex_extra_data_offset;
+    uint unk08,unk0c;
+    uint vertex_stride,vertex_extra_stride;
+    uint unk18,unk1c;
+    uint vertex_count, vertex_flags;
+    uint indices_data_offset, indices_count;
+};
+
+
+Header header;
+
+
+FSeek(header.bones_offset);
+Bone bones[header.bones_count];
+
+if(header.bone_index_translate_offset>0){
+    FSeek(header.bone_index_translate_offset);
+    int16 first_level[16];
+    //TODO
+
+};
+
+FSeek(header.materials_offset);
+Material material[header.materials_count];
+
+
+FSeek(header.vertex_groups_offset);
+VertexHeader vertex_header[header.vertex_groups_count];
