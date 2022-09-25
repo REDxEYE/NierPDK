@@ -1,8 +1,7 @@
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
+from typing import List, Dict, Tuple, Optional
 
-from utils.file_utils import IBuffer, FileBuffer
+from ...utils.file_utils import IBuffer, FileBuffer
 
 
 class Node(Dict[str, Optional[str]]):
@@ -28,7 +27,7 @@ class BXM:
     def from_buffer(cls, buffer: IBuffer) -> 'BXM':
         buffer.set_big_endian()
         magic = buffer.read_ascii_string(4)
-        assert magic == "XML", f"Expected \"XML\", got {magic}"
+        assert magic in ("XML", "BXM"), f"Expected \"XML\" or \"BXM\", got {magic}"
         self = cls()
         self.flags = buffer.read_uint32()
         node_count, data_count, data_size = buffer.read_fmt('2HI')
