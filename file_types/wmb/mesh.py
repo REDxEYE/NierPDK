@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from utils.file_utils import IBuffer
+from ...utils.file_utils import IBuffer
 
 
 @dataclass(slots=True)
@@ -15,6 +15,6 @@ class WMBMesh:
 
     @classmethod
     def from_buffer(cls, buffer: IBuffer):
-        self = cls(*buffer.read_fmt('7I'))
+        self = cls(*buffer.read_fmt('Ii5I'))
         assert self.indices_count // 3 == self.triangle_count
         return self

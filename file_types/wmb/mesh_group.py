@@ -4,8 +4,8 @@ from typing import List
 import numpy as np
 import numpy.typing as npt
 
-from file_types.shared import Vec3
-from utils.file_utils import IBuffer
+from ..shared import Vec3
+from ...utils.file_utils import IBuffer
 
 
 @dataclass(slots=True)
@@ -50,14 +50,14 @@ class WMBMeshGroup:
     @classmethod
     def from_buffer(cls, buffer: IBuffer):
         name_offset = buffer.read_uint32()
-        bbox = np.fromfile(buffer, Vec3, 2)
+        bbox = np.frombuffer(buffer.read(12 * 2), Vec3, 2)
         material_index_offset, material_index_count = buffer.read_fmt('2I')
         bone_indices_offset, bone_indices_count = buffer.read_fmt('2I')
         with buffer.read_from_offset(name_offset):
             name = buffer.read_ascii_string()
         with buffer.read_from_offset(material_index_offset):
-            material_indices = np.fromfile(buffer, np.uint16, material_index_count)
+            material_indices = np.frombuffer(buffer.read(material_index_count * 2), np.uint16, material_index_count)
         with buffer.read_from_offset(bone_indices_offset):
-            bone_indices = np.fromfile(buffer, np.uint16, bone_indices_count)
+            bone_indices = np.frombuffer(buffer.read(bone_indices_count * 2), np.uint16, bone_indices_count)
 
         return cls(name, bbox, material_indices, bone_indices)

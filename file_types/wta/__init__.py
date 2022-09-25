@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict
 
-from utils.file_utils import FileBuffer, IBuffer
+from ...utils.file_utils import FileBuffer, IBuffer
 
 
 @dataclass(slots=True)

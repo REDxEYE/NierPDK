@@ -3,13 +3,13 @@ from typing import List, Tuple
 
 import numpy as np
 
-from file_types.shared import Vec3
-from file_types.wmb.bone import WMBBoneSet, WMBBone
-from file_types.wmb.material import WMBMaterial
-from file_types.wmb.mesh import WMBMesh
-from file_types.wmb.mesh_group import WMBMeshGroupInfo, WMBMeshGroup
-from file_types.wmb.vertex_index_buffer import WMBFlags, WMBVertexIndexBuffer
-from utils.file_utils import IBuffer, FileBuffer
+from ..shared import Vec3
+from .bone import WMBBoneSet, WMBBone
+from .material import WMBMaterial
+from .mesh import WMBMesh
+from .mesh_group import WMBMeshGroupInfo, WMBMeshGroup
+from .vertex_index_buffer import WMBFlags, WMBVertexIndexBuffer
+from ...utils.file_utils import IBuffer, FileBuffer
 
 
 class WMB:
@@ -26,6 +26,7 @@ class WMB:
         self.bone_map: List[int] = []
         self.bone_sets: List[WMBBoneSet] = []
         self.mesh_material_pairs: List[Tuple[int, int]] = []
+        self.vertex_index_buffers: List[WMBVertexIndexBuffer] = []
 
     @classmethod
     def from_buffer(cls, buffer: IBuffer):
@@ -36,7 +37,7 @@ class WMB:
         zero = buffer.read_uint32()
         assert zero == 0, f'Should be zero, got {zero}'
         self.flags = WMBFlags(buffer.read_uint32())
-        self.bbox = np.fromfile(buffer, Vec3, 2)
+        self.bbox = np.frombuffer(buffer.read(12 * 2), Vec3, 2)
         bone_offset, bone_count = buffer.read_fmt('2I')
         buffer.read_fmt('2I')
         vertex_index_buffers_offset, vertex_index_buffers_count = buffer.read_fmt('2I')

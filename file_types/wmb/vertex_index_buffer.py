@@ -5,7 +5,7 @@ from typing import Optional, Union
 import numpy as np
 from numpy import typing as npt
 
-from utils.file_utils import IBuffer
+from ...utils.file_utils import IBuffer
 
 
 class WMBFlags(IntFlag):
@@ -47,11 +47,11 @@ class WMBVertexIndexBuffer:
 
         vertex_elements = [
             ('pos', np.float32, 3),
-            ('normal', np.uint8, 4),
+            ('unk', np.int8, 4),
             ('uv', np.float16, 2),
         ]
         if vertex_variant == WMBVertexVariant.NORMAL:
-            vertex_elements.append(('normal_unk', np.uint8, 8))
+            vertex_elements.append(('normal', np.float16, 4))
         if vertex_variant in (WMBVertexVariant.UV2_ENORMAL,
                               WMBVertexVariant.UV2_COLOR_ENORMAL,
                               WMBVertexVariant.UV2_COLOR_ENORMAL_EUV3,
@@ -72,26 +72,26 @@ class WMBVertexIndexBuffer:
         vertex_dtype = np.dtype(vertex_elements)
         assert vertex_dtype.itemsize == vertex_stride
         with buffer.read_from_offset(vertex_data_offset):
-            vertices = np.fromfile(buffer, vertex_dtype, vertex_count)
+            vertices = np.frombuffer(buffer.read(vertex_count*vertex_dtype.itemsize), vertex_dtype, vertex_count)
 
         if vertex_variant != 0:
             evertex_elements = []
             if vertex_variant in (WMBVertexVariant.UV2_ENORMAL, WMBVertexVariant.UV2_COLOR_ENORMAL):
-                evertex_elements.append(('normal_unk', np.uint8, 8))
+                evertex_elements.append(('normal', np.float16, 4))
             elif vertex_variant == WMBVertexVariant.UV2_COLOR_ENORMAL_EUV3:
-                evertex_elements.append(('normal_unk', np.uint8, 8))
+                evertex_elements.append(('normal', np.float16, 4))
                 evertex_elements.append(('uv3', np.float16, 2))
             elif vertex_variant == WMBVertexVariant.SKINNING_EUV2_EXNORMAL:
                 evertex_elements.append(('uv2', np.float16, 2))
-                evertex_elements.append(('normal_unk', np.uint8, 8))
+                evertex_elements.append(('normal', np.float16, 4))
             elif vertex_variant == WMBVertexVariant.SKINNING_EUV2_ECOLOR_ENORMAL:
                 evertex_elements.append(('uv2', np.float16, 2))
                 evertex_elements.append(('color', np.uint8, 4))
-                evertex_elements.append(('normal_unk', np.uint8, 8))
+                evertex_elements.append(('normal', np.float16, 4))
             elif vertex_variant == WMBVertexVariant.SKINNING_EUV2_ECOLOR_ENORMAL_EUV3:
                 evertex_elements.append(('uv2', np.float16, 2))
                 evertex_elements.append(('color', np.uint8, 4))
-                evertex_elements.append(('normal_unk', np.uint8, 8))
+                evertex_elements.append(('normal', np.float16, 4))
                 evertex_elements.append(('uv3', np.float16, 2))
             elif vertex_variant == WMBVertexVariant.UV2_COLOR_ENORMAL_EUV3_EUV4_EUV5:
                 evertex_elements.append(('uv2', np.float16, 2))
@@ -99,16 +99,17 @@ class WMBVertexIndexBuffer:
                 evertex_elements.append(('uv4', np.float16, 2))
                 evertex_elements.append(('uv5', np.float16, 2))
             elif vertex_variant == WMBVertexVariant.UV2_COLOR_ENORMAL_EUV3_EUV4:
-                evertex_elements.append(('normal_unk', np.uint8, 8))
+                evertex_elements.append(('normal', np.float16, 4))
                 evertex_elements.append(('uv3', np.float16, 2))
                 evertex_elements.append(('uv4', np.float16, 2))
 
             evertex_dtype = np.dtype(evertex_elements)
             assert evertex_dtype.itemsize == vertex_extra_stride
             with buffer.read_from_offset(vertex_extra_data_offset):
-                extra_vertices = np.fromfile(buffer, evertex_dtype, vertex_count)
+                extra_vertices = np.frombuffer(buffer.read(vertex_count*evertex_dtype.itemsize), evertex_dtype, vertex_count)
         else:
             extra_vertices = None
         with buffer.read_from_offset(indices_data_offset):
-            indices = np.fromfile(buffer, np.uint32 if int32_indices else np.uint16, indices_count)
+            index_dtype = np.uint32 if int32_indices else np.uint16
+            indices = np.frombuffer(buffer.read(indices_count*np.dtype(index_dtype).itemsize), index_dtype, indices_count)
         return cls(vertices, extra_vertices, indices)

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict
 
-from utils.file_utils import IBuffer
+from ...utils.file_utils import IBuffer
 
 
 @dataclass(slots=True)
@@ -27,7 +27,7 @@ class WMBMaterial:
         @classmethod
         def from_buffer(cls, buffer: IBuffer):
             name_offset = buffer.read_uint32()
-            ident = buffer.read_uint32()
+            ident = buffer.read_float()
             with buffer.read_from_offset(name_offset):
                 name = buffer.read_ascii_string()
             return cls(name, ident)
@@ -49,9 +49,9 @@ class WMBMaterial:
     effect_name: str
     technique_name: str
     unk2: int
-    texture_params: List[TextureParam]
+    texture_params: Dict[str, TextureParam]
     parameter_groups: List[ParameterGroup]
-    uniforms: List[UniformVariable]
+    uniforms: Dict[str, UniformVariable]
 
     @classmethod
     def from_buffer(cls, buffer: IBuffer):
@@ -63,11 +63,17 @@ class WMBMaterial:
         variables_offset, variables_count = buffer.read_fmt('2I')
         with buffer.save_current_offset():
             buffer.seek(texture_offset)
-            textures = [cls.TextureParam.from_buffer(buffer) for _ in range(texture_count)]
+            textures = {}
+            for _ in range(texture_count):
+                texture_param = cls.TextureParam.from_buffer(buffer)
+                textures[texture_param.name] = texture_param
             buffer.seek(parameter_groups_offset)
             parameter_groups = [cls.ParameterGroup.from_buffer(buffer) for _ in range(parameter_groups_count)]
             buffer.seek(variables_offset)
-            uniforms = [cls.UniformVariable.from_buffer(buffer) for _ in range(variables_count)]
+            uniforms = {}
+            for _ in range(variables_count):
+                uniform = cls.UniformVariable.from_buffer(buffer)
+                uniforms[uniform.name] = uniform
 
             buffer.seek(name_offset)
             name = buffer.read_ascii_string()
