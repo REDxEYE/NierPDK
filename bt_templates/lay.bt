@@ -1,0 +1,48 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: REDxEYE
+//   Version: 0.01
+//   Purpose: 
+//  Category: 
+// File Mask: *.lay
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+struct Header{
+    char magic[4];
+    float ver;
+    uint model_list_offset;
+    uint model_size;
+
+    uint asset_offset;
+    uint asset_count;
+
+    uint instance_offset;
+    uint instance_count;
+}header;
+
+struct ModelEntry{
+    char dir[2];
+    ushort id;
+}model_entries[header.model_size] <read=Str("%s/%s%05d",this.dir,this.dir,this.id)>;
+
+struct Asset{
+    char name[32];
+    float pos[3];
+    float rot[3];
+    float scl[3];
+
+    uint null;
+    uint unk_index;
+    uint nulls[8];
+    uint instance_count;
+}assets[header.asset_count];
+
+struct Instance{
+    float pos[3];
+    float rot[3];
+    float scl[3];
+};
