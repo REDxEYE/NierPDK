@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Union, Iterable
+from typing import Optional, Union, Iterable, Dict, Iterator, Tuple
+from fnmatch import fnmatch
 
-from utils.file_utils import IBuffer, FileBuffer, MemoryBuffer
+from ...utils.file_utils import IBuffer, FileBuffer, MemoryBuffer
 
 
 @dataclass(slots=True)
@@ -30,7 +31,7 @@ class DTTArchive:
 
     def __init__(self, buffer: IBuffer):
         self._buffer = buffer
-        self._files = {}
+        self._files: Dict[str, DTTFile] = {}
 
     def __del__(self):
         self._buffer.close()
@@ -72,8 +73,13 @@ class DTTArchive:
             return self._read_file(file)
         return None
 
-    def query_file_by_hash(self, f_hash: int) -> Optional[IBuffer]:
-        pass
+    # def query_file_by_hash(self, f_hash: int) -> Optional[IBuffer]:
+    #     pass
+
+    def glob(self, pattern) -> Iterator[Tuple[str, IBuffer]]:
+        for file_name, file in self._files.items():
+            if fnmatch(file_name, pattern):
+                yield file_name, self.query_file(file)
 
     def query_file(self, file: DTTFile) -> Optional[IBuffer]:
         return self._read_file(file)
@@ -84,6 +90,8 @@ class DTTArchive:
 
 
 def dtt_from_path(path: Path):
+    if not path.exists():
+        return None
     return dtt_from_buffer(FileBuffer(path, 'rb'))
 
 
