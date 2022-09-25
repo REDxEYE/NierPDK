@@ -15,6 +15,10 @@ class Node(Dict[str, Optional[str]]):
         value = f": \"{self.value}\"" if self.value else ""
         return f"Node<\"{self.name}\"{value}, {len(self)} attributes>"
 
+    def __repr__(self) -> str:
+        value = f": \"{self.value}\"" if self.value else ""
+        return f"Node<\"{self.name}\"{value}, {len(self)} attributes>"
+
 
 class BXM:
     def __init__(self):
