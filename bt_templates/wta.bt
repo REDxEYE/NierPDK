@@ -40,4 +40,7 @@ FSeek(header.textures_unk1_offset);
 uint32 unk1[header.texture_count];
 
 FSeek(header.textures_unk2_offset);
-uint32 unk2[header.texture_count];
+
+struct{
+    int a,b,c,d,e;
+}unk2[header.texture_count];

@@ -1,0 +1,37 @@
+//------------------------------------------------
+//--- 010 Editor v12.0.1 Binary Template
+//
+//      File: 
+//   Authors: 
+//   Version: 
+//   Purpose: 
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+FSeek(72);
+int count;
+FSeek(96);
+struct {
+    int a,b,c,d,offset,f,g,h;
+
+}entries[count];
+
+local long start = 0;//FTell();
+
+local int i;
+for(i=0;i<count;i++){
+    FSeek(start+entries[i].offset);
+    switch(entries[i].c){
+        case(0):{
+            struct{    
+                struct{
+                    short a,b;
+                }pairs[entries[i].a];
+            }entry2;
+            break;
+        }
+    }
+};
