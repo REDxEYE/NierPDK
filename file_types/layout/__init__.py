@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List
+from typing import List, Dict
 
 import numpy as np
 
@@ -71,7 +71,7 @@ class Asset:
 
 class Layout:
     def __init__(self):
-        self.models: List[ModelRef] = []
+        self.models_refs: Dict[str, ModelRef] = {}
         self.assets: List[Asset] = []
 
     @classmethod
@@ -93,9 +93,12 @@ class Layout:
         for asset in assets:
             asset.instances.extend([instances.pop(0) for _ in range(asset.instance_count)])
         self = cls()
-        self.models = models
+        self.models_refs = {model.name: model for model in models}
         self.assets = assets
         return self
+
+    def find_model_ref_by_model_name(self, model_name):
+        return self.models_refs.get(model_name, None)
 
 
 def lay_from_buffer(buffer: IBuffer):
